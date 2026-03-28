@@ -1,0 +1,27 @@
+# --- Python & Tkinter Specific ---
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Tkinter/Python build/dist
+/build/
+/dist/
+/wheelhouse/
+*.egg-info/
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# --- IDE/Editor Specific ---
+# VS Code
+.vscode/
+# PyCharm
+.idea/
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
