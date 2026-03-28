@@ -66,16 +66,23 @@ class Maze:
 class MazeView(tk.Tk):
 
     def _get_grid_size(self):
-        return min(self.canvas.winfo_width(),self.canvas.winfo_height())
+        return int(min(
+    self.canvas.winfo_width() * (self.MAZE_WINDOW_COVERAGE_PCT / 100) / self.maze.cols,
+    self.canvas.winfo_height() * (self.MAZE_WINDOW_COVERAGE_PCT / 100) / self.maze.rows
+))
     
 
     def _draw_maze(self):
         self.canvas.delete("all")
-        size = (self._get_grid_size() - (2*self.PADDING)) // self.maze.rows
+        size = self._get_grid_size()
+        maze_w = size * self.maze.cols
+        maze_h = size * self.maze.rows
+        offset_x = (self.canvas.winfo_width() - maze_w) // 2
+        offset_y = (self.canvas.winfo_height() - maze_h) // 2
         for r in range(self.maze.rows):
             for c in range(self.maze.cols):
-                x = self.PADDING + c*size
-                y = self.PADDING + r*size
+                x = offset_x + c*size
+                y = offset_y + r*size
                 for wall in self.maze.grid[r][c]:
                     if wall == "N":
                         self.canvas.create_line(x,y,x+size,y, fill="green",width=2)
@@ -91,16 +98,15 @@ class MazeView(tk.Tk):
             self.after_cancel(self._resize_job)
         self._resize_job = self.after(100,self._draw_maze)
 
-    def __init__(self,rows,cols):
+    def __init__(self,rows,cols,coverage):
         super().__init__()
-        self.PADDING = 20
         self.title("@astaffz Maze Generator")
         self.geometry("500x500")
         self.configure(bg="black")
-
+        self.MAZE_WINDOW_COVERAGE_PCT = coverage
         self.maze = Maze(rows,cols)
         self.maze.generate()
-
+        
         self._resize_job = None
         self.canvas = tk.Canvas(self,width=500,height=500,bg="black")
         self.canvas.pack(fill=tk.BOTH,expand=True)
@@ -114,8 +120,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=f"A script that generates a random solvable maze using Prim's algorithm.\nVersion {VERSION} by Aid M. (@astaffz)")
     parser.add_argument("--rows", type=int, default=20, help="Define the number of rows (default is 20)")
     parser.add_argument("--cols", type=int, default=20, help="Define the number of columns (default is 20)")
-
+    parser.add_argument("--maze-window-percentage",type=int,default=85, help="Define the percentage of the frame covered by the maze.")
     cli_args = parser.parse_args()
 
-    mv = MazeView(cli_args.rows,cli_args.cols)
+    mv = MazeView(cli_args.rows,cli_args.cols,cli_args.maze_window_percentage)
     mv.mainloop()
