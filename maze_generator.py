@@ -1,5 +1,8 @@
 import tkinter as tk 
 import random
+import argparse
+
+VERSION = "1.1"
 
 class Maze:
     def __init__(self, rows=20,cols=20):
@@ -57,6 +60,8 @@ class Maze:
                 self.grid[neighbor_r][neighbor_c].discard(wall_from_neighbor)
 
                 self._appendValidWalls(walls,neighbor_r,neighbor_c)
+        self.grid[0][0].discard("N")
+        self.grid[self.rows - 1][self.cols - 1].discard("S")
 
 class MazeView(tk.Tk):
 
@@ -86,14 +91,14 @@ class MazeView(tk.Tk):
             self.after_cancel(self._resize_job)
         self._resize_job = self.after(100,self._draw_maze)
 
-    def __init__(self):
+    def __init__(self,rows,cols):
         super().__init__()
         self.PADDING = 20
         self.title("@astaffz Maze Generator")
         self.geometry("500x500")
         self.configure(bg="black")
 
-        self.maze = Maze()
+        self.maze = Maze(rows,cols)
         self.maze.generate()
 
         self._resize_job = None
@@ -105,5 +110,12 @@ class MazeView(tk.Tk):
 
 
 if __name__ == "__main__":
-    mv = MazeView()
+    
+    parser = argparse.ArgumentParser(description=f"A script that generates a random solvable maze using Prim's algorithm.\nVersion {VERSION} by Aid M. (@astaffz)")
+    parser.add_argument("--rows", type=int, default=20, help="Define the number of rows (default is 20)")
+    parser.add_argument("--cols", type=int, default=20, help="Define the number of columns (default is 20)")
+
+    cli_args = parser.parse_args()
+
+    mv = MazeView(cli_args.rows,cli_args.cols)
     mv.mainloop()
